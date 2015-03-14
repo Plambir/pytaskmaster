@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import pytaskmaster
+from pytaskmaster import shell
+
+def task_test(argv):
+    """Run `test test_module [other_test_module...]` for running current module"""
+    if len(argv) > 0:
+        for arg in argv:
+            shell("python -m unittest tests.{}".format(arg))
+    else:
+        shell("python -m unittest")
+
+def task_help(argv):
+    """show this help"""
+    print("Run: `master <task> <args>`")
+    pytaskmaster.help(globals())
+
+if __name__ == "__main__":
+    pytaskmaster.run(globals(), sys.argv[1:])
