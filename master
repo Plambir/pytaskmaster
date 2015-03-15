@@ -5,13 +5,22 @@ import sys
 import pytaskmaster
 from pytaskmaster import shell
 
-def task_test(argv):
+def run_tests(python_command, argv):
     """Run `test test_module [other_test_module...]` for running current module"""
     if len(argv) > 0:
         for arg in argv:
-            shell("python -m unittest tests.{}".format(arg))
+            shell("{} -m unittest tests.{}".format(python_command, arg), True)
     else:
-        shell("python -m unittest")
+        if python_command == "python2":
+            shell("{} -m unittest tests".format(python_command), True)
+        else:
+            shell("{} -m unittest".format(python_command), True)
+
+
+@pytaskmaster.bench
+def task_test(argv):
+    run_tests("python2", argv)
+    run_tests("python3", argv)
 
 def task_help(argv):
     """show this help"""

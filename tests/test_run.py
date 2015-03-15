@@ -5,6 +5,7 @@ import unittest
 import pytaskmaster
 
 class TestRun(unittest.TestCase):
+    @pytaskmaster.bench
     def test_find_task(self):
         def task_foo(argv):
             self.assertTrue(True)
@@ -14,6 +15,7 @@ class TestRun(unittest.TestCase):
             self.assertTrue(False)
         self.assertTrue(pytaskmaster.run(locals(), ["foo"]))
 
+    @pytaskmaster.bench
     def test_not_find_task(self):
         def task_foo(argv):
             self.assertTrue(False)
@@ -23,7 +25,10 @@ class TestRun(unittest.TestCase):
             self.assertTrue(False)
         self.assertTrue(pytaskmaster.run(locals(), ["foobar"]))
 
+    @pytaskmaster.bench
     def test_not_tasks(self):
         self.assertFalse(pytaskmaster.run(locals(), ["foobar"]))
 
 
+if __name__ == "__main__":
+    unittest.main()
