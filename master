@@ -22,6 +22,12 @@ def task_test(argv):
     run_tests("python2", argv)
     run_tests("python3", argv)
 
+def task_build(argv):
+    shell("python setup.py bdist_wheel")
+
+def task_upload(argv):
+    shell("twine upload dist/*")
+
 def task_help(argv):
     """show this help"""
     print("Run: `master <task> <args>`")
