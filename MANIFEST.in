@@ -1,1 +1,6 @@
 include DESCRIPTION.rst
+include LICENSE
+recursive-include tests *.py
+
+exclude master
+exclude *.md
