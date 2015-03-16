@@ -113,5 +113,5 @@ def bench(function):
     return bench_wrapper
 
 def main():
-    import master
+    import ./master
     pass

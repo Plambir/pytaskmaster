@@ -3,5 +3,5 @@ include README.rst
 include LICENSE
 recursive-include tests *.py
 
-exclude master
+exclude master.py
 exclude *.md
