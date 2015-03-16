@@ -111,3 +111,7 @@ def bench(function):
         print('Done {}: {:F} sec'.format(function.__name__, float(te-ts)))
         return result
     return bench_wrapper
+
+def main():
+    import master
+    pass

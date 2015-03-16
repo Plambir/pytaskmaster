@@ -25,9 +25,10 @@ def task_test(argv):
 
 def task_build(argv):
     shell("python setup.py bdist_wheel")
-    for file in os.listdir("dist"):
-        if file.endswith(".whl") and not os.path.isfile("dist/" + file + ".asc"):
-            shell("gpg --detach-sign -a dist/{}".format(file))
+    if "--sign" in argv:
+        for file in os.listdir("dist"):
+            if file.endswith(".whl") and not os.path.isfile("dist/" + file + ".asc"):
+                shell("gpg --detach-sign -a dist/{}".format(file))
 
 def task_upload(argv):
     shell("twine upload dist/*")
