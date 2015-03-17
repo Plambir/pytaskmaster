@@ -41,12 +41,13 @@ class Config:
             self._config[key] = value
 
     def load(self):
-        with open(self._name, 'r') as configfile:
-            self._config.update(json.load(configfile))
+        if os.path.isfile(self._name):
+            with open(self._name, 'r') as configfile:
+                self._config.update(json.load(configfile))
 
     def save(self):
         with open(self._name, 'w') as configfile:
-            json.dump(self._config, configfile, indent=1)
+            json.dump(self._config, configfile, indent=4)
 
     def get_dict(self):
         return self._config.copy()
@@ -62,15 +63,14 @@ def shell(command, ignore_code=False):
 def help(module):
     print("Tasks:")
     for key in module:
-        if "task" in key.split("_"):
-            help_info = key.split("_")[1]
+        if "task" in key.split("_") and len(key.split("_")) > 1:
+            help_info = "  {}".format(key.split("_")[1])
             if module[key].__doc__:
-                help_info = help_info + " -- " + module[key].__doc__
+                help_info = "{} -- {}".format(help_info, module[key].__doc__)
             print(help_info)
 
 
 def _find_task(module, task_name):
-    import types
     task = None
     if task_name in module:
         task = module[task_name]
@@ -86,19 +86,10 @@ def run(module, argv):
 
     By default call task `help`
     """
-    if len(argv) < 1:
-        argv = ['help']
     task_name = "task_{}".format(argv[0])
     task = _find_task(module, task_name)
     if task is None:
-        print("Task `{}` not found".format(task_name))
-        task = _find_task(module, "task_help")
-        if task is None:
-            print("Please add `task_help`")
-            print("def task_help(argv):")
-            print('    print("Run: master <task> <args>")')
-            print('    pytaskmaster.help(globals())')
-            return False
+        return False
     task(argv[1:])
     return True
 
@@ -112,6 +103,59 @@ def bench(function):
         return result
     return bench_wrapper
 
+
 def main():
-    import ./master
-    pass
+    __template="""# -*- coding: utf-8 -*-
+import pytaskmaster
+
+# Load config from `master.json`
+config = pytaskmaster.Config()
+config.set_default("VERSION", "1.0")
+config.load()
+
+def task_example(argv):
+    '''It\'s example task'''
+    # save config to `master.json`
+    config.save()
+
+def task_build(argv):
+    '''It\'s example of use generator'''
+    with open("build.txt.in", "w") as file:
+        file.write("VERSION: $VERSION\\n")
+    pytaskmaster.generator("build.txt.in", "build.txt", config)
+   """
+    def my_input():
+        major_ver = sys.version_info[0]
+        if major_ver == 2:
+            return raw_input()
+        else:
+            return input()
+    def choise(question, default_y=True):
+        choise_str = "(Y/n)"
+        if not default_y:
+            choise_str = "(y/N)"
+        print('"{}" {}: '.format(question, choise_str), end="")
+        yes = ['y']
+        no = ['n']
+        if default_y:
+            yes.append('')
+        else:
+            no.append('')
+        choice = my_input().lower()
+        if choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            choise(question, default_y)
+    try:
+        sys.path.append(os.getcwd())
+        import master
+        if len(sys.argv) <= 1 or not pytaskmaster.run(master.__dict__, sys.argv[1:]):
+            print("Usage: master [OPTION...] TASK [ARGS_FOR_TASK...]")
+            pytaskmaster.help(master.__dict__)
+    except ImportError:
+        print("Error: `master.py` no such file")
+        if choise("Create `master.py` in `{}`?".format(os.getcwd())):
+            with open("master.py", 'w') as file:
+                file.write(__template)
