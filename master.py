@@ -2,12 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import pytaskmaster
 from pytaskmaster import shell
 
+config = pytaskmaster.Config()
+config.set_default("version", "1.1.0")
+config.load()
+config.save()
+
 def run_tests(python_command, argv):
-    """Run `test test_module [other_test_module...]` for running current module"""
+    """Run `test [test_module...]` for running current module"""
     if len(argv) > 0:
         for arg in argv:
             shell("{} -m unittest tests.{}".format(python_command, arg), True)
@@ -23,20 +27,25 @@ def task_test(argv):
     run_tests("python2", argv)
     run_tests("python3", argv)
 
+
+def task_check(argv):
+    shell("pylint")
+
+
 def task_build(argv):
+    pytaskmaster.generator("setup.py.in", "setup.py", config)
     shell("python setup.py bdist_wheel")
     if "--sign" in argv:
         for file in os.listdir("dist"):
-            if file.endswith(".whl") and not os.path.isfile("dist/" + file + ".asc"):
+            asc_file = "dist/" + file + ".asc"
+            if file.endswith(".whl") and not os.path.isfile(asc_file):
                 shell("gpg --detach-sign -a dist/{}".format(file))
+
+
+def task_install(argv):
+    if shell("pip install --user --upgrade .", True):
+        shell("pip install --user .")
+
 
 def task_upload(argv):
     shell("twine upload dist/*")
-
-def task_help(argv):
-    """show this help"""
-    print("Run: `master <task> <args>`")
-    pytaskmaster.help(globals())
-
-if __name__ == "__main__":
-    pytaskmaster.run(globals(), sys.argv[1:])

@@ -1,0 +1,73 @@
+#!/usr/bin/python -B
+
+import os
+import sys
+
+def main():
+    pytaskmaster = __import__("pytaskmaster")
+    __template = """# -*- coding: utf-8 -*-
+import pytaskmaster
+
+# Load config from `master.json`
+config = pytaskmaster.Config()
+config.set_default("VERSION", "1.0")
+config.load()
+
+def task_example(argv):
+    '''It\'s example task'''
+    # save config to `master.json`
+    config.save()
+
+def task_build(argv):
+    '''It\'s example of use generator'''
+    with open("build.txt.in", "w") as file:
+        file.write("VERSION: $VERSION\\n")
+    pytaskmaster.generator("build.txt.in", "build.txt", config)
+   """
+    def get_module(name):
+        major_ver = sys.version_info[0]
+        if major_ver == 2:
+            import imp
+            return imp.load_source(name, os.getcwd())
+        else:
+            import importlib
+            return importlib.import_module(name)
+    def my_input():
+        major_ver = sys.version_info[0]
+        if major_ver == 2:
+            return raw_input()
+        else:
+            return input()
+    def choise(question, default_y=True):
+        choise_str = "(Y/n)"
+        if not default_y:
+            choise_str = "(y/N)"
+        sys.stdout.write('"{}" {}: '.format(question, choise_str))
+        yes = ['y']
+        no = ['n']
+        if default_y:
+            yes.append('')
+        else:
+            no.append('')
+        choice = my_input().lower()
+        if choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            choise(question, default_y)
+    try:
+        sys.path.append(os.getcwd())
+        import master
+        if len(sys.argv) <= 1 \
+           or not pytaskmaster.run(master.__dict__, sys.argv[1:]):
+            print("Usage: master [OPTION...] TASK [ARGS_FOR_TASK...]")
+            pytaskmaster.show_help(master.__dict__)
+    except ImportError:
+        print("Error: `master.py` no such file")
+        if choise("Create `master.py` in `{}`?".format(os.getcwd())):
+            with open("master.py", 'w') as file:
+                file.write(__template)
+
+if __name__ == "__main__":
+    main()
