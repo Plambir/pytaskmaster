@@ -2,10 +2,10 @@
 
 import os
 import sys
+import pytaskmaster
+import argparse
 
-def main():
-    pytaskmaster = __import__("pytaskmaster")
-    __template = """# -*- coding: utf-8 -*-
+__template = """# -*- coding: utf-8 -*-
 import pytaskmaster
 
 # Load config from `master.json`
@@ -24,44 +24,83 @@ def task_build(argv):
         file.write("VERSION: $VERSION\\n")
     pytaskmaster.generator("build.txt.in", "build.txt", config)
    """
-    def get_module(name):
-        major_ver = sys.version_info[0]
-        if major_ver == 2:
-            import imp
-            return imp.load_source(name, os.getcwd())
-        else:
-            import importlib
-            return importlib.import_module(name)
-    def my_input():
-        major_ver = sys.version_info[0]
-        if major_ver == 2:
-            return raw_input()
-        else:
-            return input()
-    def choise(question, default_y=True):
-        choise_str = "(Y/n)"
-        if not default_y:
-            choise_str = "(y/N)"
-        sys.stdout.write('"{}" {}: '.format(question, choise_str))
-        yes = ['y']
-        no = ['n']
-        if default_y:
-            yes.append('')
-        else:
-            no.append('')
-        choice = my_input().lower()
-        if choice in yes:
-            return True
-        elif choice in no:
-            return False
-        else:
-            choise(question, default_y)
+
+class ShowTasksAction(argparse.Action):
+    def __init__(self,
+                 option_strings,
+                 dest,
+                 default=False,
+                 required=False,
+                 help=None):
+        super(ShowTasksAction, self).__init__(
+            option_strings=option_strings,
+            nargs=0,
+            dest=dest,
+            const=True,
+            default=default,
+            required=required,
+            help=help)
+    def __call__(self, parser, namespace, values, option_string=None):
+        try:
+            sys.path.append(os.getcwd())
+            import master
+            pytaskmaster.show_help(master.__dict__)
+        except ImportError:
+            print("Error: `master.py` no such file")
+        parser.exit()
+
+
+def get_module(name):
+    major_ver = sys.version_info[0]
+    if major_ver == 2:
+        import imp
+        return imp.load_source(name, os.getcwd())
+    else:
+        import importlib
+        return importlib.import_module(name)
+
+
+def my_input():
+    major_ver = sys.version_info[0]
+    if major_ver == 2:
+        return raw_input()
+    else:
+        return input()
+
+
+def choise(question, default_y=True):
+    choise_str = "(Y/n)"
+    if not default_y:
+        choise_str = "(y/N)"
+    sys.stdout.write('"{}" {}: '.format(question, choise_str))
+    yes = ['y']
+    no = ['n']
+    if default_y:
+        yes.append('')
+    else:
+        no.append('')
+    choice = my_input().lower()
+    if choice in yes:
+        return True
+    elif choice in no:
+        return False
+    else:
+        choise(question, default_y)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Run task')
+    parser.add_argument('-s', '--show-tasks', help='show all tasks from master file', action=ShowTasksAction)
+    parser.add_argument('task', metavar="TASK", nargs='?', type=str, help='task for run')
+    parser.add_argument('args', nargs=argparse.REMAINDER, type=str, help='args for task')
+    args = parser.parse_args();
+    if args.task is None:
+        parser.print_help()
+        exit(1)
     try:
         sys.path.append(os.getcwd())
         import master
-        if len(sys.argv) <= 1 \
-           or not pytaskmaster.run(master.__dict__, sys.argv[1:]):
-            print("Usage: master [OPTION...] TASK [ARGS_FOR_TASK...]")
+        if not pytaskmaster.run(master.__dict__, args.task, args.args):
             pytaskmaster.show_help(master.__dict__)
     except ImportError:
         print("Error: `master.py` no such file")

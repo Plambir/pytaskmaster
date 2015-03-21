@@ -6,6 +6,7 @@ import subprocess
 import json
 import os
 import sys
+import collections
 
 from string import Template
 
@@ -72,27 +73,22 @@ def shell(command, ignore_code=False):
 
 def show_help(module):
     print("Tasks:")
-    for key in module:
+    for key in collections.OrderedDict(sorted(module.items())):
         if "task" in key.split("_") and len(key.split("_")) > 1:
             help_info = "  {}".format(key.split("_")[1])
             if module[key].__doc__:
-                help_info = "{} -- {}".format(help_info, module[key].__doc__)
+                help_info = "{}\t-- {}".format(help_info, module[key].__doc__)
             print(help_info)
 
 
-def _find_task(module, task_name):
-    task = None
+def run(module, name, args=None):
+    if args is None:
+        args = []
+    task_name = "task_{}".format(name)
     if task_name in module:
-        task = module[task_name]
-    return task
-
-
-def run(module, argv):
-    task_name = "task_{}".format(argv[0])
-    task = _find_task(module, task_name)
-    if task is None:
+        module[task_name](args)
+    else:
         return False
-    task(argv[1:])
     return True
 
 
@@ -103,4 +99,5 @@ def bench(function):
         te = time.time()
         print('Done {}: {:F} sec'.format(function.__name__, float(te-ts)))
         return result
+    bench_wrapper.__doc__ = function.__doc__
     return bench_wrapper

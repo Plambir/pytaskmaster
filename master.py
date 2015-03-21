@@ -11,7 +11,6 @@ config.load()
 config.save()
 
 def run_tests(python_command, argv):
-    """Run `test [test_module...]` for running current module"""
     if len(argv) > 0:
         for arg in argv:
             shell("{} -m unittest tests.{}".format(python_command, arg), True)
@@ -24,6 +23,7 @@ def run_tests(python_command, argv):
 
 @pytaskmaster.bench
 def task_test(argv):
+    """Run `test [test_module...]` for running current module"""
     run_tests("python2", argv)
     run_tests("python3", argv)
 
@@ -32,7 +32,9 @@ def task_check(argv):
     shell("pylint")
 
 
+@pytaskmaster.bench
 def task_build(argv):
+    """Build package. Use --sigh for create .asc files"""
     pytaskmaster.generator("setup.py.in", "setup.py", config)
     shell("python setup.py bdist_wheel")
     if "--sign" in argv:
