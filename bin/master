@@ -26,9 +26,13 @@ def task_build(argv):
     pytaskmaster.generator("build.txt.in", "build.txt", config)
    """
 
+
 def import_master(master_file):
     sys.path.append(os.path.dirname(os.path.abspath(master_file)))
-    return importlib.import_module(os.path.splitext(os.path.basename(master_file))[0])
+    return importlib.import_module(
+        os.path.splitext(os.path.basename(master_file))[0]
+    )
+
 
 class ShowTasksAction(argparse.Action):
     def __init__(self,
@@ -45,6 +49,7 @@ class ShowTasksAction(argparse.Action):
             default=default,
             required=required,
             help=help)
+
     def __call__(self, parser, namespace, values, option_string=None):
         try:
             master_file = "master.py"
@@ -97,11 +102,34 @@ def choise(question, default_y=True):
 
 def main():
     parser = argparse.ArgumentParser(description='Run task')
-    parser.add_argument('-s', '--show-tasks', help='show all tasks from master file', action=ShowTasksAction)
-    parser.add_argument('-f', '--file', metavar="FILE", nargs=1, type=argparse.FileType('r'), help='use custom FILE for run tasks')
-    parser.add_argument('task', metavar="TASK", nargs='?', type=str, help='task for run')
-    parser.add_argument('args', nargs=argparse.REMAINDER, type=str, help='args for task')
-    args = parser.parse_args();
+    parser.add_argument(
+        '-s',
+        '--show-tasks',
+        help='show all tasks from master file',
+        action=ShowTasksAction
+    )
+    parser.add_argument(
+        '-f',
+        '--file',
+        metavar="FILE",
+        nargs=1,
+        type=argparse.FileType('r'),
+        help='use custom FILE for run tasks'
+    )
+    parser.add_argument(
+        'task',
+        metavar="TASK",
+        nargs='?',
+        type=str,
+        help='task for run'
+    )
+    parser.add_argument(
+        'args',
+        nargs=argparse.REMAINDER,
+        type=str,
+        help='args for task'
+    )
+    args = parser.parse_args()
     if args.task is None:
         parser.print_help()
         exit(1)
