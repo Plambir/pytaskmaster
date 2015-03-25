@@ -4,6 +4,7 @@ import os
 import sys
 import pytaskmaster
 import argparse
+import importlib
 
 __template = """# -*- coding: utf-8 -*-
 import pytaskmaster
@@ -25,6 +26,10 @@ def task_build(argv):
     pytaskmaster.generator("build.txt.in", "build.txt", config)
    """
 
+def import_master(master_file):
+    sys.path.append(os.path.dirname(os.path.abspath(master_file)))
+    return importlib.import_module(os.path.splitext(os.path.basename(master_file))[0])
+
 class ShowTasksAction(argparse.Action):
     def __init__(self,
                  option_strings,
@@ -42,8 +47,10 @@ class ShowTasksAction(argparse.Action):
             help=help)
     def __call__(self, parser, namespace, values, option_string=None):
         try:
-            sys.path.append(os.getcwd())
-            import master
+            master_file = "master.py"
+            if namespace.file is not None:
+                master_file = namespace.file[0].name
+            master = import_master(master_file)
             pytaskmaster.show_help(master.__dict__)
         except ImportError:
             print("Error: `master.py` no such file")
@@ -91,6 +98,7 @@ def choise(question, default_y=True):
 def main():
     parser = argparse.ArgumentParser(description='Run task')
     parser.add_argument('-s', '--show-tasks', help='show all tasks from master file', action=ShowTasksAction)
+    parser.add_argument('-f', '--file', metavar="FILE", nargs=1, type=argparse.FileType('r'), help='use custom FILE for run tasks')
     parser.add_argument('task', metavar="TASK", nargs='?', type=str, help='task for run')
     parser.add_argument('args', nargs=argparse.REMAINDER, type=str, help='args for task')
     args = parser.parse_args();
@@ -98,8 +106,10 @@ def main():
         parser.print_help()
         exit(1)
     try:
-        sys.path.append(os.getcwd())
-        import master
+        master_file = "master.py"
+        if args.file is not None:
+            master_file = args.file[0].name
+        master = import_master(master_file)
         if not pytaskmaster.run(master.__dict__, args.task, args.args):
             pytaskmaster.show_help(master.__dict__)
     except ImportError:
