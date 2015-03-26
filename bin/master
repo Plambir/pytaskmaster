@@ -56,7 +56,7 @@ class ShowTasksAction(argparse.Action):
             if namespace.file is not None:
                 master_file = namespace.file[0].name
             master = import_master(master_file)
-            pytaskmaster.show_help(master.__dict__)
+            pytaskmaster.show_tasks(master.__dict__)
         except ImportError:
             print("Error: `master.py` no such file")
         parser.exit()
@@ -138,8 +138,8 @@ def main():
         if args.file is not None:
             master_file = args.file[0].name
         master = import_master(master_file)
-        if not pytaskmaster.run(master.__dict__, args.task, args.args):
-            pytaskmaster.show_help(master.__dict__)
+        if not pytaskmaster.run_task(master.__dict__, args.task, args.args):
+            pytaskmaster.show_tasks(master.__dict__)
     except ImportError:
         print("Error: `master.py` no such file")
         if choise("Create `master.py` in `{}`?".format(os.getcwd())):

@@ -71,7 +71,7 @@ def shell(command, ignore_code=False):
     return code
 
 
-def show_help(module):
+def show_tasks(module):
     print("Tasks:")
     for key in collections.OrderedDict(sorted(module.items())):
         if "task" in key.split("_") and len(key.split("_")) > 1:
@@ -81,7 +81,7 @@ def show_help(module):
             print(help_info)
 
 
-def run(module, name, args=None):
+def run_task(module, name, args=None):
     if args is None:
         args = []
     task_name = "task_{}".format(name)
