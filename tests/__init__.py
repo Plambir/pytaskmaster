@@ -6,3 +6,4 @@ if major_ver == 2:
     from test_run import *
     from test_config import *
     from test_generator import *
+    from test_master import *
