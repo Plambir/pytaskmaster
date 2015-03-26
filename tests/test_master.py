@@ -9,10 +9,9 @@ import tempfile
 
 import pytaskmaster
 
+help_origin = """usage: master [-h] [-s] [-f FILE] [-t] [TASK] ...
 
-help_origin = """usage: master [-h] [-s] [-f FILE] [TASK] ...
-
-Run task
+Run task from script file.
 
 positional arguments:
   TASK                  task for run
@@ -22,25 +21,22 @@ optional arguments:
   -h, --help            show this help message and exit
   -s, --show-tasks      show all tasks from master file
   -f FILE, --file FILE  use custom FILE for run tasks
+  -t, --template        create `master.py` from template
 """
-
 
 master_test = """
 def task_master(argv):
     pass
 """
 
-
 master_test_show = """Tasks:
   master
 """
-
 
 example_test = """
 def task_example(argv):
     pass
 """
-
 
 example_test_show = """Tasks:
   example
@@ -101,6 +97,14 @@ class TestMaster(unittest.TestCase):
     def test_run_task_another_file(self):
         self.assertEqual(self._call("master -f example.py example"), 0)
         self.assertEqual(self._call("master -f dir/example.py example"), 0)
+
+    def test_create_template(self):
+        old_cwd = os.getcwd()
+        os.chdir("dir")
+        self.assertFalse(os.path.isfile("master.py"))
+        self.assertEqual(self._call("master -t"), 0)
+        self.assertTrue(os.path.isfile("master.py"))
+        os.chdir(self.old_cwd)
 
 
 if __name__ == "__main__":
