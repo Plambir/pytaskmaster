@@ -54,6 +54,8 @@ class Config:
         if os.path.isfile(self._name):
             with open(self._name, 'r') as configfile:
                 self._config.update(json.load(configfile))
+            return True
+        return False
 
     def save(self):
         with open(self._name, 'w') as configfile:
