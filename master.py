@@ -50,4 +50,4 @@ def task_install(argv):
 
 
 def task_upload(argv):
-    shell("twine upload dist/*")
+    shell("twine upload dist/*-{0}-*".format(config.get('version')))
