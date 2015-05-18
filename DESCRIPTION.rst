@@ -24,12 +24,34 @@ For zsh users
 .. code:: shell
 
           _master() {
-          typeset -A opt_args
+              typeset -A opt_args
 
-          _arguments '(-h --help)'{-h,--help}'[show this help message and exit]' \
-                     '(-s --show-tasks)'{-s,--show-tasks}'[show all tasks from master file]' \
-                     '(-f --file)'{-f,--file}'[use custom FILE for run tasks]:file:_files' \
-                     '(-t --template)'{-t,--template}'[create `master.py` from template]'
+              __get_tasks() {
+                  file="master.py"
+                  if [ -n "${opt_args[-f]}" ];
+                  then
+                      eval file="${opt_args[-f]}"
+                  fi
+                  if [ -n "${opt_args[--file]}" ];
+                  then
+                      eval file="${opt_args[--file]}"
+                  fi
+                  tasks_command="ls $file 2>/dev/null 1>/dev/null && master -f \"${file}\" -s"
+                  eval ${tasks_command} 2>/dev/null | grep '^  [a-zA-Z]' | while read -r a b; do echo $a$b | sed 's/^[\ \t]* \([a-zA-Z]\)/\1/g' | sed 's/[\ \t]*--\(.*\)/:\1/g'; done;
+              }
+
+              __tasks() {
+                  local -a tasks
+                  tasks=(${(fo)"$(__get_tasks)"})
+                  _describe 'tasks' tasks
+              }
+
+              _arguments '(-h --help)'{-h,--help}'[show this help message and exit]' \
+                         '(-s --show-tasks)'{-s,--show-tasks}'[show all tasks from master file]' \
+                         '(-f --file)'{-f,--file}'[use custom FILE for run tasks]:file:_files' \
+                         '(-t --template)'{-t,--template}'[create `master.py` from template]' \
+                         '1::tasks:__tasks' \
+                         '2::files:_files'
           }
 
           compdef _master master
