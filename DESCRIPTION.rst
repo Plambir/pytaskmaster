@@ -64,7 +64,7 @@ You can access the source code at: https://github.com/Plambir/pytaskmaster
 Release History
 ---------------
 
-1.1.0 (2015-0?-??)
+1.1.0 (2015-05-18)
 ------------------
 
   - Add CLI script
