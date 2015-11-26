@@ -36,7 +36,7 @@ def task_build(argv):
     """Build package. Use --sigh for create .asc files"""
     pytaskmaster.generator("setup.py.in", "setup.py", config)
     pytaskmaster.generator("pytaskmaster/version.py.in", "pytaskmaster/version.py", config)
-    shell("python setup.py bdist_wheel") #TODO: fix
+    shell("python setup.py bdist_wheel")
     if "--sign" in argv:
         for file in os.listdir("dist"):
             asc_file = "dist/" + file + ".asc"
