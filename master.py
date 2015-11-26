@@ -8,7 +8,6 @@ from pytaskmaster import shell
 config = pytaskmaster.Config()
 config.set_default("version", "1.1.0")
 config.load()
-config.save()
 
 def run_tests(python_command, argv):
     if len(argv) > 0:
