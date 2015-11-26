@@ -9,7 +9,7 @@ import tempfile
 
 import pytaskmaster
 
-help_origin = """usage: master [-h] [-s] [-f FILE] [-t] [TASK] ...
+help_origin = """usage: master [-h] [-s] [-f FILE] [-t] [-v] [TASK] ...
 
 Run task from script file.
 
@@ -22,6 +22,7 @@ optional arguments:
   -s, --show-tasks      show all tasks from master file
   -f FILE, --file FILE  use custom FILE for run tasks
   -t, --template        create `master.py` from template
+  -v, --version         output version information
 """
 
 master_test = """
