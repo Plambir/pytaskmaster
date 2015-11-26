@@ -29,14 +29,15 @@ def task_test(argv):
 
 
 def task_check(argv):
-    shell("pylint")
+    shell("pylint pytaskmaster/__init__.py")
 
 
 @pytaskmaster.bench
 def task_build(argv):
     """Build package. Use --sigh for create .asc files"""
     pytaskmaster.generator("setup.py.in", "setup.py", config)
-    shell("python setup.py bdist_wheel")
+    pytaskmaster.generator("pytaskmaster/version.py.in", "pytaskmaster/version.py", config)
+    shell("python setup.py bdist_wheel") #TODO: fix
     if "--sign" in argv:
         for file in os.listdir("dist"):
             asc_file = "dist/" + file + ".asc"

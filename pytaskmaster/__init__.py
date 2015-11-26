@@ -10,6 +10,7 @@ import collections
 
 from string import Template
 
+from . import version
 
 def generator(in_file_name, out_file_name, config):
     sys.stdout.write(
@@ -96,10 +97,10 @@ def run_task(module, name, args=None):
 
 def bench(function):
     def bench_wrapper(*args, **kwargs):
-        ts = time.time()
+        time_began = time.time()
         result = function(*args, **kwargs)
-        te = time.time()
-        print('Done {}: {:F} sec'.format(function.__name__, float(te-ts)))
+        time_finish = time.time()
+        print('Done {}: {:F} sec'.format(function.__name__, float(time_finish-time_began)))
         return result
     bench_wrapper.__doc__ = function.__doc__
     return bench_wrapper
