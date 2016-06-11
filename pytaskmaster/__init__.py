@@ -73,12 +73,12 @@ def shell(command, ignore_code=False):
         exit(code)
     return code
 
-
 def show_tasks(module):
     print("Tasks:")
     for key in collections.OrderedDict(sorted(module.items())):
-        if "task" in key.split("_") and len(key.split("_")) > 1:
-            help_info = "  {}".format(key.split("_")[1])
+        task = key.split("_", 1)
+        if "task" in task and len(task) > 1:
+            help_info = "  {}".format(task[1])
             if module[key].__doc__:
                 help_info = "{}\t-- {}".format(help_info, module[key].__doc__)
             print(help_info)

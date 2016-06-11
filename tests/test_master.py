@@ -26,12 +26,12 @@ optional arguments:
 """
 
 master_test = """
-def task_master(argv):
+def task_master_blaster(argv):
     pass
 """
 
 master_test_show = """Tasks:
-  master
+  master_blaster
 """
 
 example_test = """
